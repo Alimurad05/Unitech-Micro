@@ -53,4 +53,27 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
+    public Long getExpirationInSeconds(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        Date expiration = claims.getExpiration();
+        return (expiration.getTime() - System.currentTimeMillis()) / 1000;
+    }
+
+    public String extractUsername(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public boolean isTokenValid(String token, String username) {
+        return extractUsername(token).equals(username) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return getClaims(token).getExpiration().before(new Date());
+    }
+
+
 }
