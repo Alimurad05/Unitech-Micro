@@ -21,7 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    public AuthResponse register(RegisterRequest request){
+    public AuthResponse register(RegisterRequest request) throws AuthenticationException{
         User user=User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
