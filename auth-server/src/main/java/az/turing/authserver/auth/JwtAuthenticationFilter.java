@@ -1,6 +1,7 @@
 package az.turing.authserver.auth;
 
 import az.turing.authserver.auth.JwtTokenProvider;
+import az.turing.authserver.service.RedisService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisService redisService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -33,6 +35,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             email = jwtTokenProvider.extractUsername(token);
+            if (redisService.isTokenBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
