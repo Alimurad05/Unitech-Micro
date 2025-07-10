@@ -24,6 +24,9 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RabbitMQProducer rabbitMQProducer;
     public AuthResponse register(RegisterRequest request) throws AuthenticationException{
+        if(userRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new AuthenticationException("User already exists");
+        }
         User user=User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -33,9 +36,7 @@ public class AuthService {
                 .build();
         userRepository.save(user);
         String token = jwtTokenProvider.generateToken(user.getEmail());
-        rabbitMQProducer.sendUserRegisteredEvent(
-                new UserRegisteredEvent(user.getEmail())
-        );
+        rabbitMQProducer.sendUserRegisteredEvent(request.getEmail());
         return AuthResponse.builder()
                 .token(token)
                 .build();
@@ -49,7 +50,7 @@ public class AuthService {
             throw new AuthenticationException("Invalid password");
         }
         String token = jwtTokenProvider.generateToken(user.getEmail());
-
+        rabbitMQProducer.sendUserLoginEvent(request.getEmail());
         return AuthResponse.builder()
                 .token(token)
                 .build();

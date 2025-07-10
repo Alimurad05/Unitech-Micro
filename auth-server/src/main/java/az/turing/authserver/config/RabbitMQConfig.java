@@ -10,6 +10,7 @@ public class RabbitMQConfig {
 
     public static final String USER_REGISTERED_QUEUE = "user-registered-queue";
     public static final String USER_EXCHANGE = "user-exchange";
+    public static final String USER_LOGIN_QUEUE = "user-login-queue";
 
     @Bean
     public DirectExchange userExchange() {
@@ -20,4 +21,9 @@ public class RabbitMQConfig {
     public Queue userRegisteredQueue() {
         return new Queue(USER_REGISTERED_QUEUE);
     }
+    @Bean
+    public Queue userLoginQueue() {
+        return new Queue(USER_LOGIN_QUEUE);
+    }
+
 }
