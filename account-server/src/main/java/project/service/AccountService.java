@@ -28,7 +28,7 @@ public class AccountService {
                 .userId(Long.parseLong(request.getUserId()))
                 .currency(request.getCurrency())
                 .iban(generateIban())
-                .balance(0.0)
+                .balance(BigDecimal.ZERO) // Changed to BigDecimal.ZERO
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .active(true)
@@ -54,7 +54,7 @@ public class AccountService {
                 .id(account.getId())
                 .userId(account.getUserId())
                 .currency(account.getCurrency())
-                .balance(BigDecimal.valueOf(account.getBalance()))
+                .balance(account.getBalance()) // No conversion needed, already BigDecimal
                 .isActive(account.isActive())
                 .build();
     }
