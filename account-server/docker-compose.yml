@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  account-db:
+    image: postgres:15
+    container_name: account_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: account_db
+      POSTGRES_USER: tural
+      POSTGRES_PASSWORD: tural05
+    ports:
+      - "5433:5432"
+    volumes:
+      - account_postgres_data:/var/lib/postgresql/data
+    networks:
+      - account-network
+
+  redis:
+    image: redis:7
+    container_name: account_redis
+    restart: always
+    ports:
+      - "6380:6379"
+    networks:
+      - account-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: account_rabbitmq
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: alimurad
+      RABBITMQ_DEFAULT_PASS: alimurad05
+    networks:
+      - account-network
+
+volumes:
+  account_postgres_data:
+
+networks:
+  account-network:
+    driver: bridge

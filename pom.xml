@@ -14,6 +14,7 @@
     <module>eureka-server</module>
     <module>config-server</module>
     <module>auth-server</module>
+    <module>account-server</module>
   </modules>
 
   <properties>
