@@ -15,6 +15,7 @@
     <module>config-server</module>
     <module>auth-server</module>
     <module>account-server</module>
+    <module>transfer2-server</module>
   </modules>
 
   <properties>

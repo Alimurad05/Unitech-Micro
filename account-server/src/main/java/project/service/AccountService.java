@@ -62,4 +62,24 @@ public class AccountService {
     private String generateIban() {
         return "AZ" + UUID.randomUUID().toString().substring(0, 24).replace("-", "").toUpperCase();
     }
+    public void debit(Long id, BigDecimal amount) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient balance");
+        }
+
+        account.setBalance(account.getBalance().subtract(amount));
+        accountRepository.save(account);
+    }
+
+    public void credit(Long id, BigDecimal amount) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        account.setBalance(account.getBalance().add(amount));
+        accountRepository.save(account);
+    }
+
 }

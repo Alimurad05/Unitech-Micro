@@ -8,6 +8,7 @@ import project.dto.AccountResponse;
 import project.dto.CreateAccountRequest;
 import project.service.AccountService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -33,4 +34,16 @@ public class AccountController {
     public ResponseEntity<List<AccountResponse>> getActiveByUser(@PathVariable String userId) {
         return ResponseEntity.ok(accountService.getActiveAccountsByUserId(userId));
     }
+    @PutMapping("/{id}/debit")
+    public ResponseEntity<Void> debit(@PathVariable Long id, @RequestParam BigDecimal amount) {
+        accountService.debit(id, amount);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/credit")
+    public ResponseEntity<Void> credit(@PathVariable Long id, @RequestParam BigDecimal amount) {
+        accountService.credit(id, amount);
+        return ResponseEntity.ok().build();
+    }
+
 }

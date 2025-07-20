@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  postgres-transfer:
+    image: postgres:15
+    container_name: postgres-transfer
+    environment:
+      POSTGRES_DB: transfer_db
+      POSTGRES_USER: alimurad
+      POSTGRES_PASSWORD: alimurad05
+    ports:
+      - "5434:5432"
+    networks:
+      - unitech-network
+    volumes:
+      - transfer_pgdata:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5674:5672"   # RabbitMQ message port
+      - "15673:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - unitech-network
+
+networks:
+  unitech-network:
+    driver: bridge
+
+volumes:
+  transfer_pgdata:
