@@ -1,4 +1,4 @@
-package client;
+package az.turing.transfer2server.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PutMapping;

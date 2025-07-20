@@ -1,10 +1,10 @@
-package service;
+package az.turing.transfer2server.service;
 
 import az.turing.transfer2server.dto.TransferRequestDTO;
 import az.turing.transfer2server.dto.TransferResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import client.AccountClient;
+import az.turing.transfer2server.client.AccountClient;
 
 
 @Service
