@@ -12,21 +12,22 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+
 public class CurrencyService {
 
-    private final CurrencyRepository currencyRepository;
+    private  final CurrencyRepository currencyRepository;
 
     public List<Currency> getAllCurrencies() {
         return currencyRepository.findAll();
     }
 
     public Currency getCurrencyRate(String source, String target) {
-        return currencyRepository.findBysourceCurrencyAndtargetCurrency(source, target)
+        return currencyRepository.findBySourceCurrencyAndTargetCurrency(source, target)
                 .orElseThrow(() ->
                         new CurrencyNotFoundException("Currency rate not found from " + source + " to " + target));
     }
     public BigDecimal convertCurrency(String source, String target, BigDecimal amount) {
-        Currency currency = currencyRepository.findBysourceCurrencyAndtargetCurrency(source, target)
+        Currency currency = currencyRepository.findBySourceCurrencyAndTargetCurrency(source, target)
                 .orElseThrow(() -> new NotValidCurrency("Currency not found from " + source + " to " + target));
 
         return amount.multiply(currency.getRate());

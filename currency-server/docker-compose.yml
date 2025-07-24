@@ -1,15 +1,15 @@
-version: '3.9'
+version: '3.8'
 
 services:
   postgres-transfer:
     image: postgres:15
-    container_name: postgres-transfer
+    container_name: postgres-currency
     environment:
       POSTGRES_DB: transfer_db
       POSTGRES_USER: alimurad
       POSTGRES_PASSWORD: alimurad05
     ports:
-      - "5434:5432"
+      - "5435:5432"
     networks:
       - unitech-network
     volumes:
@@ -17,7 +17,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq
+    container_name: rabbitmqcurrency
     ports:
       - "5674:5672"   # RabbitMQ messaging port (backend üçün)
       - "15673:15672" # RabbitMQ Management UI port (brauzer üçün)
