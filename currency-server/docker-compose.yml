@@ -1,35 +1,99 @@
 version: '3.8'
-
 services:
-  postgres-transfer:
-    image: postgres:15
-    container_name: postgres-currency
-    environment:
-      POSTGRES_DB: transfer_db
-      POSTGRES_USER: alimurad
-      POSTGRES_PASSWORD: alimurad05
-    ports:
-      - "5435:5432"
-    networks:
-      - unitech-network
-    volumes:
-      - transfer_pgdata:/var/lib/postgresql/data
-
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmqcurrency
+    container_name: rabbitmq
     ports:
-      - "5674:5672"   # RabbitMQ messaging port (backend üçün)
-      - "15673:15672" # RabbitMQ Management UI port (brauzer üçün)
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: alimurad
+      RABBITMQ_DEFAULT_PASS: alimurad05
+    networks:
+      - unitech-network
+
+  auth-server:
+    image: openjdk:17-jdk-slim
+    container_name: auth_server
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./auth-server/target/auth-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      - rabbitmq
+      - eureka-server
+      - config-server
+
+  account-server:
+    image: openjdk:17-jdk-slim
+    container_name: account_server
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./account-server/target/account-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      - rabbitmq
+      - eureka-server
+      - config-server
+
+  transfer2-server:
+    image: openjdk:17-jdk-slim
+    container_name: transfer2_server
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./transfer2-server/target/transfer2-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      - rabbitmq
+      - eureka-server
+      - config-server
+
+  currency-server:
+    image: openjdk:17-jdk-slim
+    container_name: currency_server
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./currency-server/target/currency-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      - rabbitmq
+      - eureka-server
+      - config-server
+
+  eureka-server:
+    image: openjdk:17-jdk-slim
+    container_name: eureka_server
+    ports:
+      - "8761:8761"
+    volumes:
+      - ./eureka-server/target/eureka-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+
+  config-server:
+    image: openjdk:17-jdk-slim
+    container_name: config_server
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./config-server/target/config-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
     networks:
       - unitech-network
 
 networks:
   unitech-network:
     driver: bridge
-
-volumes:
-  transfer_pgdata:

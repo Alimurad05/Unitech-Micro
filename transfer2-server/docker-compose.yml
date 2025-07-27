@@ -19,11 +19,11 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5674:5672"   # RabbitMQ message port
-      - "15673:15672" # Management UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: alimurad
+      RABBITMQ_DEFAULT_PASS: alimurad05
     networks:
       - unitech-network
 

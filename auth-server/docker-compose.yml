@@ -22,16 +22,16 @@ services:
       - "6379:6379"
 
   rabbitmq:
-          image: rabbitmq:3-management
-          container_name: auth_rabbitmq
-          ports:
-            - "5672:5672"
-            - "15672:15672"
-          environment:
-            RABBITMQ_DEFAULT_USER: alimurad
-            RABBITMQ_DEFAULT_PASS: alimurad05
-          networks:
-            - auth-network
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: alimurad
+      RABBITMQ_DEFAULT_PASS: alimurad05
+    networks:
+      - unitech-network
 networks:
   auth-network:
     driver: bridge

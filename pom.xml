@@ -17,6 +17,7 @@
     <module>account-server</module>
     <module>transfer2-server</module>
     <module>currency-server</module>
+    <module>gateway-server</module>
   </modules>
 
   <properties>
