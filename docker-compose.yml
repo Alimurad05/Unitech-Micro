@@ -1,0 +1,189 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: alimurad
+      POSTGRES_PASSWORD: alimurad05
+      POSTGRES_DB: unitechdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - unitech-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alimurad -d unitechdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: alimurad
+      RABBITMQ_DEFAULT_PASS: alimurad05
+    networks:
+      - unitech-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  config-server:
+    image: openjdk:17-jdk-slim
+    container_name: config_server
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./config-server/target/config-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/your-repo/config-repo.git
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL=main
+
+  eureka-server:
+    image: openjdk:17-jdk-slim
+    container_name: eureka_server
+    ports:
+      - "8761:8761"
+    volumes:
+      - ./eureka-server/target/eureka-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      config-server:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_CLOUD_CONFIG_IMPORT=optional:configserver:http://config_server:8888
+
+  auth-server:
+    image: openjdk:17-jdk-slim
+    container_name: auth_server
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./auth-server/target/auth-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/unitechdb
+      - SPRING_DATASOURCE_USERNAME=alimurad
+      - SPRING_DATASOURCE_PASSWORD=alimurad05
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_CLOUD_CONFIG_IMPORT=optional:configserver:http://config_server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka_server:8761/eureka/
+
+  account-server:
+    image: openjdk:17-jdk-slim
+    container_name: account_server
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./account-server/target/account-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/unitechdb
+      - SPRING_DATASOURCE_USERNAME=alimurad
+      - SPRING_DATASOURCE_PASSWORD=alimurad05
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_CLOUD_CONFIG_IMPORT=optional:configserver:http://config_server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka_server:8761/eureka/
+
+  currency-server:
+    image: openjdk:17-jdk-slim
+    container_name: currency_server
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./currency-server/target/currency-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_CLOUD_CONFIG_IMPORT=optional:configserver:http://config_server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka_server:8761/eureka/
+
+  transfer2-server:
+    image: openjdk:17-jdk-slim
+    container_name: transfer2_server
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./transfer2-server/target/transfer2-server-0.0.1-SNAPSHOT.jar:/app.jar
+    command: java -jar /app.jar
+    networks:
+      - unitech-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      config-server:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+      auth-server:
+        condition: service_started
+      account-server:
+        condition: service_started
+      currency-server:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_CLOUD_CONFIG_IMPORT=optional:configserver:http://config_server:8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka_server:8761/eureka/
+
+networks:
+  unitech-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

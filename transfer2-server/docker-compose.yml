@@ -1,25 +1,19 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  auth-db:
+  postgres-transfer:
     image: postgres:15
-    container_name: auth_postgres
-    restart: always
+    container_name: postgres-transfer
     environment:
-      POSTGRES_DB: auth_db
+      POSTGRES_DB: transfer_db
       POSTGRES_USER: alimurad
       POSTGRES_PASSWORD: alimurad05
     ports:
-      - "5432:5432"
+      - "5434:5432"
+    networks:
+      - unitech-network
     volumes:
-      - auth_postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7
-    container_name: auth_redis
-    restart: always
-    ports:
-      - "6379:6379"
+      - transfer_pgdata:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -32,8 +26,10 @@ services:
       RABBITMQ_DEFAULT_PASS: alimurad05
     networks:
       - unitech-network
+
 networks:
-  auth-network:
+  unitech-network:
     driver: bridge
+
 volumes:
-  auth_postgres_data:
+  transfer_pgdata:

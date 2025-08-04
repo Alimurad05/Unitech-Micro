@@ -1,25 +1,29 @@
 version: '3.8'
 
 services:
-  auth-db:
+  account-db:
     image: postgres:15
-    container_name: auth_postgres
+    container_name: account_postgres
     restart: always
     environment:
-      POSTGRES_DB: auth_db
-      POSTGRES_USER: alimurad
-      POSTGRES_PASSWORD: alimurad05
+      POSTGRES_DB: account_db
+      POSTGRES_USER: tural
+      POSTGRES_PASSWORD: tural05
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - auth_postgres_data:/var/lib/postgresql/data
+      - account_postgres_data:/var/lib/postgresql/data
+    networks:
+      - account-network
 
   redis:
     image: redis:7
-    container_name: auth_redis
+    container_name: account_redis
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
+    networks:
+      - account-network
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -32,8 +36,10 @@ services:
       RABBITMQ_DEFAULT_PASS: alimurad05
     networks:
       - unitech-network
-networks:
-  auth-network:
-    driver: bridge
+
 volumes:
-  auth_postgres_data:
+  account_postgres_data:
+
+networks:
+  account-network:
+    driver: bridge
